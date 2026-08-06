@@ -20,6 +20,10 @@ The first article covers solution promotion for a single Fabric solution using A
 
 [Article 01 draft](docs/articles/article-01-draft.md)
 
+## Release Assets
+
+[Article 01 Gist package](release-assets/article-01/gist/README.md)
+
 ## Repository Layout
 
 | Path | Purpose |
@@ -29,6 +33,7 @@ The first article covers solution promotion for a single Fabric solution using A
 | `docs/` | Public documentation |
 | `images/` | Article screenshots |
 | `pipelines/` | Reusable Azure DevOps pipeline assets |
+| `release-assets/` | Release-specific packages and Gist material |
 | `src/` | Reusable code |
 | `templates/` | Reusable templates |
 | `tests/` | Validation and regression checks |

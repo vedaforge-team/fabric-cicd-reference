@@ -19,4 +19,3 @@ This folder contains sanitized screenshots for Article 01.
 - Use only sanitized screenshots.
 - Do not include tenant IDs, workspace IDs, client IDs, secrets, email addresses, or local paths.
 - Keep filenames stable and descriptive.
-

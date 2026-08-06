@@ -1,6 +1,4 @@
 # Reference
 
-## Purpose
-
-This folder will contain public reference material for reusable scripts, templates, conventions, and configuration contracts.
+This folder contains public reference material for reusable patterns and contracts.
 

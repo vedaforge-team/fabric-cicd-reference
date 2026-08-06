@@ -1,0 +1,7 @@
+flowchart TD
+    A[Push to develop] --> B[Validate only]
+    C[PR to release] --> D[Validate only]
+    E[Push to release] --> F[Deploy UAT]
+    G[PR to main] --> H[Validate only]
+    I[Push to main] --> J[Deploy PROD]
+

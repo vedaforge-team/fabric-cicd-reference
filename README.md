@@ -1,38 +1,43 @@
 # fabric-cicd-reference
 
-Public reference implementation for the Engineering Microsoft Fabric CI/CD article series.
+Public reference implementation for enterprise Platform Engineering with Microsoft Fabric, Azure DevOps, and related automation patterns.
 
-This repository is the navigation hub for reusable implementation assets that support future LinkedIn articles. It contains public-safe examples, pipeline templates, diagrams, and supporting code only.
+This repository is a working reference implementation. It is meant to show a practical path from source-controlled Fabric changes to repeatable promotion through DEV, UAT, and PROD.
 
-## Repository Map
+## Practical Use Case
+
+Use this repo when you need a reusable example of one Fabric solution promoted with Azure DevOps using a service principal, environment-specific variable groups, and branch-based deployment control.
+
+## Quick Start
+
+Start here:
+
+[Article 01 quick start](examples/01-solution-promotion/QUICKSTART.md)
+
+## Article 01
+
+The first article covers solution promotion for a single Fabric solution using Azure DevOps.
+
+[Article 01 draft](docs/articles/article-01-draft.md)
+
+## Repository Layout
 
 | Path | Purpose |
 |---|---|
-| `src/` | Reusable scripts and implementation code |
-| `pipelines/` | Azure DevOps pipeline definitions |
-| `templates/` | Reusable YAML and configuration templates |
 | `examples/` | Capability-based examples |
-| `docs/` | Public engineering documentation |
-| `images/` | Sanitized article screenshots and visuals |
-| `diagrams/` | Mermaid and architecture diagrams |
-| `tests/` | Validation and regression tests |
+| `diagrams/` | Article diagrams |
+| `docs/` | Public documentation |
+| `images/` | Article screenshots |
+| `pipelines/` | Reusable Azure DevOps pipeline assets |
+| `src/` | Reusable code |
+| `templates/` | Reusable templates |
+| `tests/` | Validation and regression checks |
 
-## Examples
+## Roadmap
 
-| Capability | Path |
-|---|---|
-| Single workspace deployment | `examples/single-workspace/` |
-| Multi-workspace deployment | `examples/multi-workspace/` |
-| Warehouse automation | `examples/warehouse/` |
-| Database automation | `examples/database/` |
-| OneLake automation | `examples/onelake/` |
-| Activators | `examples/activators/` |
+See [ROADMAP.md](ROADMAP.md).
 
-## Article Series Navigation
+## Notes
 
-Article assets will be added incrementally after public-safety review.
-
-| Article | Status | Assets |
-|---|---|---|
-| 01 - Single Fabric Workspace CI/CD via Azure DevOps | Pending migration | Not yet copied |
+This repository contains a working reference implementation, not private planning material.
 

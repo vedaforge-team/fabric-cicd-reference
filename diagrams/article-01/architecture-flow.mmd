@@ -1,0 +1,12 @@
+flowchart LR
+    A[Developers commit to develop] --> B[Azure DevOps pipeline]
+    B --> C[Validate against DEV]
+    C --> D[Merge develop to release]
+    D --> E[Deploy to UAT]
+    E --> F[Merge release to main]
+    F --> G[Deploy to PROD]
+    B --> H[deploy_workspace_fabric.py]
+    H --> I[ClientSecretCredential]
+    I --> J[Fabric REST API]
+    J --> K[Workspace items]
+

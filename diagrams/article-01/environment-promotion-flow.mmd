@@ -1,0 +1,6 @@
+flowchart LR
+    DEV[DEV workspace] --> RELEASE[release branch]
+    RELEASE --> UAT[UAT workspace]
+    UAT --> MAIN[main branch]
+    MAIN --> PROD[PROD workspace]
+

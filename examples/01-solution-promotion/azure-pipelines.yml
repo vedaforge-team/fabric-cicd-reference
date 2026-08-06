@@ -1,0 +1,150 @@
+# Azure DevOps pipeline for Microsoft Fabric solution promotion.
+#
+# Promotion model:
+# - develop: validate only, no workspace changes.
+# - pull request: validate only, no workspace changes.
+# - release: deploy to UAT.
+# - main: deploy to PROD.
+#
+# Required variable groups:
+# - VG-Fabric-Dev: TENANT_ID, CLIENT_ID, CLIENT_SECRET, DEV_WORKSPACE_ID
+# - VG-Fabric-UAT: TENANT_ID, CLIENT_ID, CLIENT_SECRET, UAT_WORKSPACE_ID
+# - VG-Fabric-Prod: TENANT_ID, CLIENT_ID, CLIENT_SECRET, PROD_WORKSPACE_ID
+
+trigger:
+  branches:
+    include:
+      - develop
+      - release
+      - main
+
+pr:
+  branches:
+    include:
+      - release
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  PYTHON_VERSION: "3.12"
+  FABRIC_CICD_VERSION: "1.2.0"
+  EXCLUDE_FOLDERS: ""
+  ITEM_TYPES_IN_SCOPE: ""
+  LOG_LEVEL: "INFO"
+  ENABLE_SHORTCUT_PUBLISH: "true"
+  REMOVE_ORPHANS: "true"
+
+stages:
+  - stage: Validate
+    displayName: "Validate Fabric solution"
+    dependsOn: []
+    condition: or(eq(variables['Build.Reason'], 'PullRequest'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+    variables:
+      - group: VG-Fabric-Dev
+    jobs:
+      - job: ValidateFabricSolution
+        displayName: "Validate repository against DEV workspace"
+        steps:
+          - task: UsePythonVersion@0
+            displayName: "Set Python $(PYTHON_VERSION)"
+            inputs:
+              versionSpec: "$(PYTHON_VERSION)"
+              addToPath: true
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install fabric-cicd==$(FABRIC_CICD_VERSION) azure-identity
+            displayName: "Install deployment dependencies"
+
+          - script: python deploy_workspace_fabric.py
+            displayName: "Run validate-only deployment check"
+            env:
+              TENANT_ID: $(TENANT_ID)
+              CLIENT_ID: $(CLIENT_ID)
+              CLIENT_SECRET: $(CLIENT_SECRET)
+              TARGET_WORKSPACE_ID: $(DEV_WORKSPACE_ID)
+              TARGET_ENVIRONMENT_NAME: DEV
+              VALIDATE_ONLY: "true"
+              REPOSITORY_DIRECTORY: $(Build.SourcesDirectory)
+              EXCLUDE_FOLDERS: $(EXCLUDE_FOLDERS)
+              ITEM_TYPES_IN_SCOPE: $(ITEM_TYPES_IN_SCOPE)
+              LOG_LEVEL: $(LOG_LEVEL)
+              ENABLE_SHORTCUT_PUBLISH: $(ENABLE_SHORTCUT_PUBLISH)
+              REMOVE_ORPHANS: "false"
+
+  - stage: Deploy_UAT
+    displayName: "Deploy release to UAT"
+    dependsOn: []
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/release'))
+    variables:
+      - group: VG-Fabric-UAT
+    jobs:
+      - job: DeployUat
+        displayName: "Deploy Fabric solution to UAT"
+        steps:
+          - task: UsePythonVersion@0
+            displayName: "Set Python $(PYTHON_VERSION)"
+            inputs:
+              versionSpec: "$(PYTHON_VERSION)"
+              addToPath: true
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install fabric-cicd==$(FABRIC_CICD_VERSION) azure-identity
+            displayName: "Install deployment dependencies"
+
+          - script: python deploy_workspace_fabric.py
+            displayName: "Deploy Fabric items to UAT"
+            env:
+              TENANT_ID: $(TENANT_ID)
+              CLIENT_ID: $(CLIENT_ID)
+              CLIENT_SECRET: $(CLIENT_SECRET)
+              TARGET_WORKSPACE_ID: $(UAT_WORKSPACE_ID)
+              TARGET_ENVIRONMENT_NAME: UAT
+              VALIDATE_ONLY: "false"
+              REPOSITORY_DIRECTORY: $(Build.SourcesDirectory)
+              EXCLUDE_FOLDERS: $(EXCLUDE_FOLDERS)
+              ITEM_TYPES_IN_SCOPE: $(ITEM_TYPES_IN_SCOPE)
+              LOG_LEVEL: $(LOG_LEVEL)
+              ENABLE_SHORTCUT_PUBLISH: $(ENABLE_SHORTCUT_PUBLISH)
+              REMOVE_ORPHANS: $(REMOVE_ORPHANS)
+
+  - stage: Deploy_PROD
+    displayName: "Deploy to PROD"
+    dependsOn: []
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    variables:
+      - group: VG-Fabric-Prod
+    jobs:
+      - job: DeployProd
+        displayName: "Deploy Fabric solution to PROD"
+        steps:
+          - task: UsePythonVersion@0
+            displayName: "Set Python $(PYTHON_VERSION)"
+            inputs:
+              versionSpec: "$(PYTHON_VERSION)"
+              addToPath: true
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install fabric-cicd==$(FABRIC_CICD_VERSION) azure-identity
+            displayName: "Install deployment dependencies"
+
+          - script: python deploy_workspace_fabric.py
+            displayName: "Deploy Fabric items to PROD"
+            env:
+              TENANT_ID: $(TENANT_ID)
+              CLIENT_ID: $(CLIENT_ID)
+              CLIENT_SECRET: $(CLIENT_SECRET)
+              TARGET_WORKSPACE_ID: $(PROD_WORKSPACE_ID)
+              TARGET_ENVIRONMENT_NAME: PROD
+              VALIDATE_ONLY: "false"
+              REPOSITORY_DIRECTORY: $(Build.SourcesDirectory)
+              EXCLUDE_FOLDERS: $(EXCLUDE_FOLDERS)
+              ITEM_TYPES_IN_SCOPE: $(ITEM_TYPES_IN_SCOPE)
+              LOG_LEVEL: $(LOG_LEVEL)
+              ENABLE_SHORTCUT_PUBLISH: $(ENABLE_SHORTCUT_PUBLISH)
+              REMOVE_ORPHANS: $(REMOVE_ORPHANS)
+

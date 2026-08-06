@@ -2,23 +2,21 @@
 
 ## Purpose
 
-This folder will contain sanitized screenshots and visual assets for Article 01.
+This folder contains sanitized screenshots for Article 01.
 
-## Naming Convention
+## Approved Screenshot Checklist
 
-Use numbered, descriptive filenames:
+- `article-01-01-develop-validation.png`
+- `article-01-02-release-deployment.png`
+- `article-01-03-prod-deployment.png`
+- `article-01-04-variable-groups.png`
+- `article-01-01-dev-spn-access.png`
+- `article-01-02-uat-spn-access.png`
+- `article-01-03-prod-spn-access.png`
 
-```text
-01-<short-description>.png
-02-<short-description>.png
-03-<short-description>.png
-```
+## Rules
 
-## Screenshot Rules
-
-- Do not include customer names.
-- Do not include tenant IDs, client IDs, secrets, workspace IDs, or subscription IDs.
-- Do not include user email addresses or personal information.
-- Use sanitized environments only.
-- Crop or redact browser chrome when it exposes private account details.
+- Use only sanitized screenshots.
+- Do not include tenant IDs, workspace IDs, client IDs, secrets, email addresses, or local paths.
+- Keep filenames stable and descriptive.
 

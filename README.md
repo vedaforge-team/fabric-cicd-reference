@@ -44,7 +44,7 @@ If you are validating the public release assets, also read:
 
 - `examples/01-solution-promotion/` - public example package for Article 01
 - `release-assets/article-01/gist/` - Gist-ready source bundle
-- `docs/articles/` - article drafts and source notes
+- `docs/articles/` - article notes and source notes
 - `docs/releases/` - release notes
 - `diagrams/article-01/` - architecture and flow diagrams
 - `images/article-01/` - screenshots and image checklist
@@ -59,7 +59,7 @@ This repository is organized around a short article series on Microsoft Fabric C
 
 Current public entry point:
 
-- [Article 01 - Building Enterprise CI/CD for Microsoft Fabric using Azure DevOps](docs/articles/article-01-source-notes.md)
+- [Article 01 - Building Enterprise CI/CD for Microsoft Fabric using Azure DevOps](docs/articles/article-01-notes.md)
 
 Supporting assets:
 
@@ -113,4 +113,3 @@ Before proposing changes:
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE).
->>>>>>> 775e111 (docs: rewrite public landing page)

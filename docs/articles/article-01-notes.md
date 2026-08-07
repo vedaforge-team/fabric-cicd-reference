@@ -1,8 +1,8 @@
-# Article 01 Draft
+# Article 01
 
 ## Title
 
-Enterprise CI/CD for Microsoft Fabric Solution Promotion using Azure DevOps
+Building Enterprise CI/CD for Microsoft Fabric using Azure DevOps
 
 ## Purpose
 
@@ -29,5 +29,4 @@ This article shows how one Fabric solution can move through `develop`, `release`
 
 ## Public Safety
 
-This draft intentionally avoids private planning language, local paths, customer names, tenant IDs, workspace IDs, and secrets.
-
+This note avoids private planning language, local paths, customer names, tenant IDs, workspace IDs, and secrets.

@@ -11,6 +11,7 @@
 - [x] Pipeline has permission to the required variable groups
 - [x] Secret values protected
 - [x] Branch strategy configured
+- [x] Microsoft Fabric connection to Azure DevOps created
 - [x] Service connection / pipeline permissions ready
 - [x] Azure DevOps agent available and meets requirements
 - [x] Required Python / library dependencies available

@@ -45,6 +45,7 @@ Verify the following:
 - [ ] Azure DevOps Repository has been configured.
 - [ ] Git branching strategy has been configured.
 - [ ] Branch Policies have been configured.
+- [ ] Microsoft Fabric connection to Azure DevOps has been created.
 - [ ] Azure DevOps Service Connection has been created.
 - [ ] Pipeline permissions have been configured.
 - [ ] Environment-specific Variable Groups have been created.

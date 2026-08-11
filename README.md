@@ -43,6 +43,23 @@ The organising idea in 02 is that two questions stay separate: *which solutions
 changed* is answered by detection at run time, and *where they may deploy* is
 answered by the branch. Both must agree before a stage runs.
 
+## What gets deployed
+
+Both examples publish Fabric items from source control using the `fabric-cicd`
+library, authenticating with an Entra ID service principal. Items in scope:
+
+Data Pipeline, Lakehouse, Notebook, Semantic Model, Report, Dataflow,
+Environment, Eventhouse, Eventstream, KQL Database, KQL Queryset, Mirrored
+Database, ML Experiment, Spark Job Definition, SQL Database, Variable Library,
+and Reflex.
+
+Warehouse is deliberately excluded. A `fabric-cicd` publish can reset warehouse
+schema, so it needs handling separately.
+
+Development workspaces are connected through Fabric Git integration. UAT and
+PROD are deployment targets reached over the Fabric REST API, and are not
+Git-connected, so each environment has one source of truth.
+
 ## Quick start
 
 **Single solution**

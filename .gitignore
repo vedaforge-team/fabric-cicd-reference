@@ -1,2 +1,14 @@
 .DS_Store
 
+
+# Private publishing workflow — article drafts, outlet planning, release
+# checklists. These stay outside the public repository.
+RELEASE_CHECKLIST.md
+checklist.md
+*-source-notes.md
+*-draft.md
+PUBLICATION_PREP.md
+IMPLEMENTATION_NOTES.md
+SCREENSHOT_PLAN.md
+progress/
+planning/

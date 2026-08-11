@@ -1,0 +1,35 @@
+%% Article 02 - Repository layout
+%% Root separates cleanly into content and framework.
+flowchart TD
+    ROOT["Fabric-CICD/"]
+
+    ROOT --> FW["fabric-workspaces/<br/><i>content, written by Fabric</i>"]
+    ROOT --> CFG["config/"]
+    ROOT --> SCR["scripts/"]
+    ROOT --> TPL["templates/"]
+    ROOT --> TST["tests/"]
+    ROOT --> DOC["docs/"]
+    ROOT --> YML["azure-pipelines.yml"]
+    ROOT --> RM["README.md"]
+
+    FW --> FWV["Ved/ - 6 items"]
+    FW --> FWF["Fin/ - 2 items"]
+    FW --> FWH["HR/ - 3 items"]
+
+    CFG --> CFG1["solutions.yml<br/>keys, paths, workspace names,<br/>ID variable names - no GUIDs"]
+
+    SCR --> S1["detect_changes.py"]
+    SCR --> S2["deploy_fabric_workspace.py"]
+    SCR --> S3["solution_config.py"]
+
+    TPL --> T1["solution-stages.yml<br/>Validate / UAT / PROD per solution"]
+    TPL --> T2["steps-deploy-solution.yml<br/>deployment steps, written once"]
+
+    TST --> TS1["test_detect_changes.py"]
+    TST --> TS2["test_deploy_guards.py"]
+    TST --> TS3["test_solution_config.py"]
+
+    classDef content fill:#e8f4ea,stroke:#2d6a4f
+    classDef framework fill:#e7edf7,stroke:#1d3557
+    class FW,FWV,FWF,FWH content
+    class CFG,SCR,TPL,TST,YML,CFG1,S1,S2,S3,T1,T2,TS1,TS2,TS3 framework

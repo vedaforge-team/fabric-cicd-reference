@@ -1,0 +1,29 @@
+%% Article 02 - Deployment lifecycle inside deploy_fabric_workspace.py
+%% Everything above "load Fabric SDK" is local validation. Nothing has
+%% touched Fabric yet, and nothing will if a guard rejects the run.
+flowchart TD
+    S(["stage starts"]) --> RQ{"required env vars present?<br/>SOLUTION_KEY, credentials,<br/>TARGET_WORKSPACE_ID"}
+    RQ -->|no| X1(["ABORT"])
+    RQ -->|yes| REG{"solution key in<br/>config/solutions.yml?"}
+    REG -->|no| X2(["ABORT"])
+    REG -->|yes| PATH{"REPOSITORY_DIRECTORY<br/>resolves to repo root?"}
+    PATH -->|yes| X3(["ABORT<br/>root scope would sweep<br/>every solution into one workspace"])
+    PATH -->|no| EXIST{"directory exists?"}
+    EXIST -->|no| X4(["ABORT"])
+    EXIST -->|yes| EMPTY{"contains at least one<br/>.platform descriptor?"}
+    EMPTY -->|no| X5(["ABORT<br/>orphan removal would treat every<br/>item in the target as an orphan"])
+    EMPTY -->|yes| SDK["load Fabric SDK<br/><i>first point of contact</i>"]
+
+    SDK --> WS["build FabricWorkspace<br/>authenticate, resolve workspace,<br/>parse every item"]
+    WS --> VAL{"VALIDATE_ONLY?"}
+    VAL -->|yes| DONE1(["return - no workspace changes"])
+    VAL -->|no| ORPH{"REMOVE_ORPHANS?"}
+    ORPH -->|yes| UNP["unpublish_all_orphan_items"]
+    ORPH -->|no| PUB
+    UNP --> PUB["publish_all_items"]
+    PUB --> DONE2(["deployment complete"])
+
+    classDef abort fill:#fdeaea,stroke:#9b2226
+    classDef ok fill:#e8f4ea,stroke:#2d6a4f
+    class X1,X2,X3,X4,X5 abort
+    class DONE1,DONE2 ok

@@ -1,0 +1,21 @@
+%% Article 02 - Multi-workspace deployment flow
+%% One commit touching two solutions. Both run through the same engine,
+%% independently and in parallel. The third receives no calls at all.
+flowchart LR
+    C["Commit touches<br/>fabric-workspaces/Ved<br/>fabric-workspaces/HR"] --> D{{"detect_changes.py"}}
+
+    D -->|"ved = true"| PV["Deploy_UAT_ved"]
+    D -->|"hr = true"| PH["Deploy_UAT_hr"]
+    D -->|"fin = false"| PF["Deploy_UAT_fin<br/><b>Skipped</b>"]
+
+    PV --> EV["deploy_fabric_workspace.py<br/>SOLUTION_KEY=ved<br/>REPOSITORY_DIRECTORY=.../Ved<br/>$(VED_UAT_WORKSPACE_ID)"]
+    PH --> EH["deploy_fabric_workspace.py<br/>SOLUTION_KEY=hr<br/>REPOSITORY_DIRECTORY=.../HR<br/>$(HR_UAT_WORKSPACE_ID)"]
+
+    EV --> WV[(Ved-UAT)]
+    EH --> WH[(HR-UAT)]
+    PF -.->|"zero API calls"| WF[(Fin-UAT<br/><i>untouched</i>)]
+
+    classDef skip fill:#eeeeee,stroke:#888888,stroke-dasharray: 4 3
+    classDef run fill:#e8f4ea,stroke:#2d6a4f
+    class PF,WF skip
+    class PV,PH,EV,EH,WV,WH run

@@ -1,0 +1,48 @@
+%% Article 02 - High-level architecture
+%% Three Fabric solutions, one shared CI/CD framework, nine workspaces.
+flowchart TB
+    subgraph AUTHOR["Authoring (Git-connected)"]
+        VD[Ved-Development]
+        FD[Fin-Development]
+        HD[HR-Development]
+    end
+
+    subgraph REPO["Azure DevOps repository"]
+        direction TB
+        subgraph CONTENT["fabric-workspaces/ - content"]
+            RV["Ved/"]
+            RF["Fin/"]
+            RH["HR/"]
+        end
+        subgraph FRAMEWORK["shared CI/CD framework"]
+            CFG["config/solutions.yml"]
+            SCR["scripts/"]
+            TPL["templates/"]
+            PIPE["azure-pipelines.yml"]
+        end
+    end
+
+    DETECT{{"detect_changes.py<br/>which solutions changed?"}}
+    ENGINE["deploy_fabric_workspace.py<br/>one engine, called per solution"]
+
+    subgraph TARGETS["Deployment targets (not Git-connected)"]
+        VU[Ved-UAT] --> VP[Ved-Prod]
+        FU[Fin-UAT] --> FP[Fin-Prod]
+        HU[HR-UAT] --> HP[HR-Prod]
+    end
+
+    VD -->|"git folder /fabric-workspaces/Ved"| RV
+    FD -->|"git folder /fabric-workspaces/Fin"| RF
+    HD -->|"git folder /fabric-workspaces/HR"| RH
+
+    CONTENT --> DETECT
+    CFG -.->|"source_path, workspace names"| DETECT
+    DETECT -->|"affected solutions only"| ENGINE
+    CFG -.->|"resolves target"| ENGINE
+
+    ENGINE -->|"release branch"| VU
+    ENGINE -->|"release branch"| FU
+    ENGINE -->|"release branch"| HU
+    ENGINE -->|"main branch"| VP
+    ENGINE -->|"main branch"| FP
+    ENGINE -->|"main branch"| HP

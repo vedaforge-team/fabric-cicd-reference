@@ -1,0 +1,35 @@
+%% Article 02 - Change detection ("path filter") logic
+%% NOTE: this is NOT an Azure DevOps trigger path filter. Classification runs
+%% at run time in Python, because ADO path filters cannot set per-solution
+%% variables that later stages can condition on.
+flowchart TD
+    START(["git diff --name-only"]) --> BASE{"shape of HEAD"}
+    BASE -->|"merge commit"| B1["HEAD^1..HEAD"]
+    BASE -->|"normal commit"| B2["HEAD~1..HEAD"]
+    BASE -->|"root commit"| B3["all tracked files"]
+    BASE -->|"shallow clone"| FAIL(["FAIL LOUDLY<br/>no parent to diff against"])
+
+    B1 --> LOOP
+    B2 --> LOOP
+    B3 --> LOOP
+
+    LOOP["for each changed path"] --> IGN{"matches ignore rules?<br/>*.md, docs/, diagrams/, images/"}
+    IGN -->|yes| DROP["ignored<br/><i>no deployment</i>"]
+    IGN -->|no| SOL{"starts with a<br/>registered source_path?"}
+
+    SOL -->|yes| MARK["mark that solution CHANGED"]
+    SOL -->|no| FRM{"matches framework rules?<br/>scripts/ templates/ config/ tests/<br/>azure-pipelines.yml"}
+
+    FRM -->|yes| FLAG["framework_changed = true<br/><i>validation only, no solution deploys</i>"]
+    FRM -->|no| UNC["UNCLASSIFIED<br/><i>warn loudly, deploy nothing</i>"]
+
+    MARK --> OUT
+    FLAG --> OUT
+    DROP --> OUT
+    UNC --> OUT
+    OUT["emit Azure DevOps output variables<br/>ved / fin / hr / anySolution / frameworkChanged"]
+
+    classDef danger fill:#fdeaea,stroke:#9b2226
+    classDef safe fill:#e8f4ea,stroke:#2d6a4f
+    class FAIL,UNC danger
+    class DROP,FLAG safe

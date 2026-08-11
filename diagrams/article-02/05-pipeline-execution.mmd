@@ -1,0 +1,33 @@
+%% Article 02 - Pipeline execution
+%% Every stage is generated at compile time; detection decides at run time
+%% which ones execute. Unaffected solutions render as Skipped, not absent.
+flowchart TB
+    DC["Stage: DetectChanges<br/>checkout fetchDepth 0<br/>publishes change-detection.json"]
+
+    subgraph VED["VED stages"]
+        VV["Validate_ved"]
+        VU["Deploy_UAT_ved"]
+        VP["Deploy_PROD_ved"]
+    end
+    subgraph FIN["FIN stages"]
+        FV["Validate_fin"]
+        FU["Deploy_UAT_fin"]
+        FP["Deploy_PROD_fin"]
+    end
+    subgraph HR["HR stages"]
+        HV["Validate_hr"]
+        HU["Deploy_UAT_hr"]
+        HP["Deploy_PROD_hr"]
+    end
+
+    SUM["Stage: Summary<br/>condition: always()<br/>solution x environment table"]
+
+    DC --> VED
+    DC --> FIN
+    DC --> HR
+    VED --> SUM
+    FIN --> SUM
+    HR --> SUM
+
+    COND["Every stage condition:<br/>detection says this solution CHANGED<br/><b>AND</b><br/>branch permits this environment"]
+    DC -.-> COND

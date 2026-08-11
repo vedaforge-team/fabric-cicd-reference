@@ -1,0 +1,20 @@
+%% Article 02 - Branch strategy
+%% Branch decides WHERE a solution may deploy. No automatic promotion chain.
+flowchart LR
+    FAB["Fabric Development<br/>workspaces"] -->|"direct commit"| DEV["develop"]
+    DEV -->|"pull request"| REL["release"]
+    REL -->|"pull request"| MAIN["main"]
+
+    DEV --> V["Validate against DEV<br/><i>no workspace changes</i>"]
+    REL --> U["Deploy to *-UAT<br/><i>publish + orphan removal</i>"]
+    MAIN --> P["Deploy to *-Prod<br/><i>publish + orphan removal</i>"]
+
+    PR["Pull request<br/>into release or main"] --> V
+
+    NOTE["Promotion is a human merge.<br/>A commit never walks itself to PROD."]
+    MAIN -.- NOTE
+
+    classDef safe fill:#e8f4ea,stroke:#2d6a4f
+    classDef write fill:#fdeaea,stroke:#9b2226
+    class V,PR safe
+    class U,P write

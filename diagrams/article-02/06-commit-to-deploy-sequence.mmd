@@ -1,0 +1,34 @@
+%% Article 02 - Commit to deploy sequence
+sequenceDiagram
+    autonumber
+    participant A as Author (Fabric)
+    participant W as Ved-Development
+    participant G as Azure DevOps repo
+    participant P as Pipeline
+    participant D as detect_changes.py
+    participant E as deploy_fabric_workspace.py
+    participant T as Ved-UAT
+
+    A->>W: author item
+    W->>G: commit to fabric-workspaces/Ved (develop)
+    G->>P: trigger
+    P->>D: checkout fetchDepth 0, run detection
+    D->>D: resolve baseline from shape of HEAD
+    D->>D: classify each changed path
+    D-->>P: ved=true, fin=false, hr=false
+    Note over P: FIN and HR stages evaluate false and are Skipped.<br/>They receive zero Fabric API calls.
+
+    P->>P: branch = develop, so validate only
+    P->>E: SOLUTION_KEY=ved, environment=DEV, VALIDATE_ONLY=true
+    E->>E: resolve source, reject repo root, assert non-empty
+    E-->>P: validated, no workspace changes
+
+    Note over G,T: Human merges develop into release
+    G->>P: trigger on release
+    P->>D: detection re-runs on the merge commit
+    D-->>P: ved=true
+    P->>E: SOLUTION_KEY=ved, environment=UAT, VALIDATE_ONLY=false
+    E->>E: guards pass, resolve $(VED_UAT_WORKSPACE_ID)
+    E->>T: unpublish orphans, then publish all items
+    T-->>P: success
+    P->>P: Summary stage reports the matrix

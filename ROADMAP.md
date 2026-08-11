@@ -1,42 +1,45 @@
 # Roadmap
 
-## Phase 1
+Phases are delivered as articles, each with a working example in `examples/`.
 
-Enterprise CI/CD for Microsoft Fabric Solution Promotion
+| Phase | Scope | Status |
+| ----- | ----- | ------ |
+| 1 | Enterprise CI/CD for Microsoft Fabric solution promotion | Released in `v1.0.0` |
+| 2 | Multiple solution promotion | Released in `v2.0.0` |
+| 3 | Warehouse deployment | Planned |
+| 4 | Database deployment | Planned |
+| 5 | OneLake shortcuts | Planned |
+| 6 | Activators | Planned |
+| 7 | Deployment validation | Planned |
+| 8 | Quality gates | Planned |
+| 9 | Rollback | Planned |
+| 10 | Reusable Azure DevOps templates | Foundation delivered in `v2.0.0`; a standalone template package is still planned |
 
-## Phase 2
+## Phase 1 — Enterprise CI/CD for Microsoft Fabric solution promotion
 
-Multiple Solution Promotion
+One Fabric solution promoted through `develop`, `release`, and `main` using a
+service principal and environment-specific variable groups.
 
-## Phase 3
+Delivered: `examples/01-solution-promotion/`
 
-Warehouse Deployment
+## Phase 2 — Multiple solution promotion
 
-## Phase 4
+Several independent Fabric solutions sharing one repository and one pipeline,
+with change detection ensuring a commit deploys only the solutions it touched.
 
-Database Deployment
+Delivered: `examples/02-multi-solution/`
 
-## Phase 5
+Carried forward as known limitations: no `parameter.yml` for cross-environment
+value replacement, and no approval gates on UAT or PROD.
 
-OneLake Shortcuts
+## Phase 3 — Warehouse deployment
 
-## Phase 6
+Warehouse schema deployment is deliberately excluded from the current item types
+because a `fabric-cicd` publish can reset schema. This phase covers handling it
+separately and safely.
 
-Activators
+## Phase 4 onward
 
-## Phase 7
-
-Deployment Validation
-
-## Phase 8
-
-Quality Gates
-
-## Phase 9
-
-Rollback
-
-## Phase 10
-
-Reusable Azure DevOps Templates
-
+Database deployment, OneLake shortcuts, activators, deployment validation,
+quality gates, rollback, and a reusable template package. Scope for each is set
+when the preceding phase is published.

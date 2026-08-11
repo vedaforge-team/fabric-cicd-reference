@@ -247,6 +247,14 @@ class TestSafetyHelpers(unittest.TestCase):
             (folder / "README.md").write_text("populated by Fabric git integration\n")
             self.assertEqual(count_fabric_items(folder), 0)
 
+    def test_item_names_with_spaces_are_counted(self):
+        """Fabric allows spaces in item names, e.g. 'Notebook_1 Copy.Notebook'."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "Ved"
+            (root / "Notebook_1 Copy.Notebook").mkdir(parents=True)
+            (root / "Notebook_1 Copy.Notebook" / ".platform").write_text("{}")
+            self.assertEqual(count_fabric_items(root), 1)
+
     def test_missing_directory_counts_zero(self):
         self.assertEqual(count_fabric_items(REPO_ROOT / "NoSuchFolder"), 0)
 

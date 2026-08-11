@@ -1,115 +1,134 @@
 # fabric-cicd-reference
 
-## Project Overview
+Public reference implementation for Microsoft Fabric CI/CD with Azure DevOps.
 
-This repository is a public reference implementation for Microsoft Fabric CI/CD with Azure DevOps.
-It shows one practical promotion path from source-controlled Fabric changes to repeatable deployment through DEV, UAT, and PROD.
+Two working examples: promoting a single Fabric solution through DEV, UAT, and
+PROD, and promoting several independent solutions from one repository without
+letting a change in one deploy the others.
 
-## Why This Exists
+These are working examples, not a product demo.
 
-The goal is to show a practical way to promote Microsoft Fabric items through development, validation, release, and production stages using repository-backed automation.
+## Examples
 
-This is a working example, not a product demo.
+| Example | Covers | Release |
+| ------- | ------ | ------- |
+| [`01-solution-promotion`](examples/01-solution-promotion/README.md) | One solution through `develop`, `release`, `main` | `v1.0.0` |
+| [`02-multi-solution`](examples/02-multi-solution/README.md) | Several solutions, one pipeline, change-aware deployment | `v2.0.0` |
 
-## What Readers Will Build
+Start with 01 if you are setting up Fabric CI/CD for the first time. Go to 02
+when a second team needs to share the repository.
 
-Readers will see how to:
+## What the examples show
 
-- deploy a Fabric workspace from source control
-- pass environment-specific settings through Azure DevOps
-- separate validation from deployment
-- promote the same solution through multiple environments
-- organize reusable example assets for future articles
+**Example 01** — deploying a Fabric workspace from source control, passing
+environment-specific settings through Azure DevOps variable groups, separating
+validation from deployment, and promoting one solution through three
+environments.
 
-## Architecture Diagram
+**Example 02** — three solutions across nine workspaces served by one pipeline.
+The additions that make that safe:
 
-Placeholder for the Article 01 architecture diagram.
+- Change detection mapping a git diff onto solution folders, so a commit deploys
+  only the solutions it touched
+- A single deployment engine parameterised by solution and environment, rather
+  than one script per solution
+- A registry holding workspace IDs by variable name, keeping GUIDs out of Git
+- Deployment scoping that rejects the repository root as a source path
+- An empty-source guard that aborts before any Fabric call when a solution
+  folder holds no items
+- Shallow-clone detection, so a missing diff baseline fails loudly instead of
+  silently skipping every deployment
 
-See the detailed diagram assets in `diagrams/article-01/`.
+The organising idea in 02 is that two questions stay separate: *which solutions
+changed* is answered by detection at run time, and *where they may deploy* is
+answered by the branch. Both must agree before a stage runs.
 
-## Quick Start
+## Quick start
 
-1. Read [Article 01 example package](examples/01-solution-promotion/README.md)
-2. Review the [quick start guide](examples/01-solution-promotion/QUICKSTART.md)
-3. Inspect the deployment script in `examples/01-solution-promotion/deploy_workspace_fabric.py`
-4. Review the pipeline definition in `examples/01-solution-promotion/azure-pipelines.yml`
+**Single solution**
 
-If you are validating the public release assets, also read:
+1. [Example package](examples/01-solution-promotion/README.md)
+2. [Quick start guide](examples/01-solution-promotion/QUICKSTART.md)
+3. `examples/01-solution-promotion/deploy_workspace_fabric.py`
+4. `examples/01-solution-promotion/azure-pipelines.yml`
 
-- [Article 01 source notes](docs/articles/article-01-source-notes.md)
-- [Release notes v1.0.0](docs/releases/v1.0.0.md)
-- [Release checklist](RELEASE_CHECKLIST.md)
+**Multiple solutions**
 
-## Repository Structure
+1. [Example package](examples/02-multi-solution/README.md)
+2. [Quick start guide](examples/02-multi-solution/QUICKSTART.md)
+3. [Troubleshooting](examples/02-multi-solution/TROUBLESHOOTING.md)
+4. Run the offline test suite — no Azure or Fabric access required:
 
-- `examples/01-solution-promotion/` - public example package for Article 01
-- `release-assets/article-01/gist/` - Gist-ready source bundle
-- `docs/articles/` - article notes and source notes
-- `docs/releases/` - release notes
-- `diagrams/article-01/` - architecture and flow diagrams
-- `images/article-01/` - screenshots and image checklist
-- `pipelines/` - reusable Azure DevOps pipeline assets
-- `templates/` - reusable pipeline templates
-- `src/` - reusable Python modules
-- `tests/` - test guidance and future test assets
+```bash
+cd examples/02-multi-solution
+python3 -m unittest discover -s tests -v
+```
 
-## Article Series
+## Diagrams
 
-This repository is organized around a short article series on Microsoft Fabric CI/CD.
+Mermaid sources, rendered by GitHub:
 
-Current public entry point:
+- [`diagrams/article-01/`](diagrams/article-01/) — architecture, pipeline, and promotion flow
+- [`diagrams/article-02/`](diagrams/article-02/) — architecture, repository layout,
+  branch strategy, change-detection logic, pipeline execution, commit-to-deploy
+  sequence, multi-workspace deployment, and the deployment lifecycle
 
-- [Article 01 - Building Enterprise CI/CD for Microsoft Fabric using Azure DevOps](docs/articles/article-01-notes.md)
+## Repository structure
 
-Supporting assets:
+- `examples/` — one package per article; `01` and `02` are published
+- `diagrams/` — Mermaid diagram sources
+- `images/` — screenshots per article
+- `docs/articles/` — article notes
+- `docs/releases/` — release notes
+- `release-assets/` — Gist-ready bundles
+- `pipelines/`, `templates/`, `src/`, `tests/` — placeholders for future shared assets
 
-- example implementation package
-- release notes
-- diagrams
-- screenshots
-- Gist package
+## Article series
 
-## Screenshots
+| # | Article | Notes |
+| - | ------- | ----- |
+| 01 | Building Enterprise CI/CD for Microsoft Fabric using Azure DevOps | [notes](docs/articles/article-01-notes.md) |
+| 02 | One CI/CD framework for multiple Microsoft Fabric solutions | [notes](docs/articles/article-02-notes.md) |
 
-Article 01 screenshots are stored under `images/article-01/`.
+## Releases
 
-Approved screenshot reference:
+| Version | Notes | Scope |
+| ------- | ----- | ----- |
+| `v2.0.0` | [release notes](docs/releases/v2.0.0.md) | Multi-solution promotion with change-aware deployment |
+| `v1.0.0` | [release notes](docs/releases/v1.0.0.md) | Single-solution promotion |
 
-- [Screenshot checklist](images/article-01/README.md)
+`v2.0.0` contains breaking changes for anyone upgrading from `v1.0.0`. The
+release notes list the required migration steps.
 
-## Related Projects
+## Known limitations
 
-- Private engineering repository used for internal implementation work
-- Public reference repository for Article 01
-- Azure DevOps pipeline configuration for environment promotion
+Stated plainly so they are not discovered late:
+
+- No `parameter.yml`. Items referencing a workspace-specific resource by GUID
+  still point at the source environment after deployment.
+- No approval gates. A merge to `main` deploys PROD unattended.
+- Warehouse schema deployment is deliberately excluded, because a `fabric-cicd`
+  publish can reset schema.
+- A push of several commits at once is evaluated from `HEAD~1`, so only the last
+  commit is inspected. Promotion goes through pull requests, where the whole
+  change set is visible, so this affects direct pushes to `develop` only.
 
 ## Roadmap
 
-The repository roadmap is tracked in [ROADMAP.md](ROADMAP.md).
-
-The current public sequence covers:
-
-1. Enterprise CI/CD for Microsoft Fabric Solution Promotion
-2. Multiple Solution Promotion
-3. Warehouse Deployment
-4. Database Deployment
-5. OneLake Shortcuts
-6. Activators
-7. Deployment Validation
-8. Quality Gates
-9. Rollback
-10. Reusable Azure DevOps Templates
+Tracked in [ROADMAP.md](ROADMAP.md). Phases 1 and 2 are published; warehouse and
+database deployment come next.
 
 ## Contributing
 
-Contributions should keep the repository public-safe, reproducible, and specific to the documented Fabric CI/CD flow.
-
-Before proposing changes:
+Keep the repository public-safe, reproducible, and specific to the documented
+Fabric CI/CD flow. Before proposing changes:
 
 - avoid private names, tenant data, IDs, secrets, and local paths
 - keep implementation changes aligned with the working example
-- update the relevant docs or release notes when behavior changes
+- update the relevant docs or release notes when behaviour changes
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).

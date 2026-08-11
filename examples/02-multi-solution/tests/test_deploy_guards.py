@@ -93,6 +93,36 @@ class TestEmptySourceGuard(GuardTestCase):
                 count = deploy.assert_source_not_empty(empty, self.fin, "UAT")
         self.assertEqual(count, 0)
 
+    def test_counts_items_exactly_in_a_controlled_tree(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp) / "Ved"
+            for name in ("A.Notebook", "B.DataPipeline", "C.Lakehouse"):
+                (directory / name).mkdir(parents=True)
+                (directory / name / ".platform").write_text("{}")
+            with environment(ALLOW_EMPTY_SOURCE=None):
+                self.assertEqual(
+                    deploy.assert_source_not_empty(directory, self.ved, "UAT"), 3
+                )
+
+    def test_guard_verdict_follows_folder_contents(self):
+        """The guard's verdict tracks what is actually in each solution folder.
+
+        The folders ship empty in this example, so the guard blocks them, which
+        is the intended state until a Development workspace is connected and its
+        items committed. The assertion still holds once they are populated.
+        """
+        for solution in self.registry.solutions:
+            directory = REPO_ROOT / solution.source_path
+            populated = deploy.count_fabric_items(directory) > 0
+            with environment(ALLOW_EMPTY_SOURCE=None):
+                if populated:
+                    self.assertGreater(
+                        deploy.assert_source_not_empty(directory, solution, "UAT"), 0
+                    )
+                else:
+                    with self.assertRaises(SystemExit):
+                        deploy.assert_source_not_empty(directory, solution, "UAT")
+
     def test_item_is_recognised_by_platform_file(self):
         with tempfile.TemporaryDirectory() as tmp:
             folder = Path(tmp) / "Fin"

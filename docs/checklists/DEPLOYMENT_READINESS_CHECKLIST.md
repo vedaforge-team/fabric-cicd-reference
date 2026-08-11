@@ -109,20 +109,14 @@ Before troubleshooting the deployment code, verify these common causes:
 
 ---
 
-# Scope of this Article
+# Scope
 
-This checklist applies to **Article 01 – Building Enterprise Microsoft Fabric CI/CD**.
+This checklist covers promoting Microsoft Fabric items through Azure DevOps with
+a service principal: workspaces, identity, variable groups, branch strategy, and
+the deployment scope itself.
 
-Topics intentionally excluded from this checklist and covered in future articles include:
-
-- Microsoft Fabric Warehouse Deployment
-- Database CI/CD
-- OneLake Deployment
-- Activators
-- Reusable Azure DevOps Templates
-- Deployment Rollback
-- Quality Gates
-- Databricks CI/CD
+It does not cover warehouse schema deployment, which is deliberately excluded
+from the publish scope because a `fabric-cicd` publish can reset schema.
 
 ---
 

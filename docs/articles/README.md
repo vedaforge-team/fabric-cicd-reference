@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This folder will contain public article companion material for the Platform Engineering reference series.
+Public companion material for the published articles.
 
 Article planning documents are not stored here.
 

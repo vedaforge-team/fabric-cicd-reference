@@ -75,13 +75,12 @@ Mermaid sources, rendered by GitHub:
 
 ## Repository structure
 
-- `examples/` — one package per article; `01` and `02` are published
+- `examples/` — one package per published article
 - `diagrams/` — Mermaid diagram sources
 - `images/` — screenshots per article
 - `docs/articles/` — article notes
 - `docs/releases/` — release notes
 - `release-assets/` — Gist-ready bundles
-- `pipelines/`, `templates/`, `src/`, `tests/` — placeholders for future shared assets
 
 ## Article series
 
@@ -112,11 +111,6 @@ Stated plainly so they are not discovered late:
 - A push of several commits at once is evaluated from `HEAD~1`, so only the last
   commit is inspected. Promotion goes through pull requests, where the whole
   change set is visible, so this affects direct pushes to `develop` only.
-
-## Roadmap
-
-Tracked in [ROADMAP.md](ROADMAP.md). Phases 1 and 2 are published; warehouse and
-database deployment come next.
 
 ## Contributing
 

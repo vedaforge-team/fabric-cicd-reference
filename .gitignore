@@ -12,3 +12,7 @@ IMPLEMENTATION_NOTES.md
 SCREENSHOT_PLAN.md
 progress/
 planning/
+
+# Agent state and roadmaps — never publish
+.claude/
+ROADMAP.md

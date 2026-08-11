@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This folder will contain diagrams for Article 01.
+Diagram sources for Article 01.
 
 ## Diagram Types
 

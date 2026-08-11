@@ -1,0 +1,61 @@
+# Deployment steps for one solution against one environment.
+#
+# Every Validate / UAT / PROD stage in the pipeline uses this file. The only
+# things that differ between them are the parameters below, which is what keeps
+# a single deployment implementation serving all solutions.
+
+parameters:
+  - name: solution
+    type: string
+  - name: sourcePath
+    type: string
+  - name: environment
+    type: string
+    values:
+      - DEV
+      - UAT
+      - PROD
+  - name: validateOnly
+    type: string
+  - name: removeOrphans
+    type: string
+
+steps:
+  - checkout: self
+    # Deployment reads the working tree, not history, so a shallow clone is fine
+    # here. Change detection is the step that needs full history.
+    fetchDepth: 1
+    clean: true
+
+  - task: UsePythonVersion@0
+    displayName: "Set Python $(PYTHON_VERSION)"
+    inputs:
+      versionSpec: "$(PYTHON_VERSION)"
+      addToPath: true
+
+  - script: |
+      python -m pip install --upgrade pip
+      pip install fabric-cicd==$(FABRIC_CICD_VERSION) azure-identity pyyaml
+    displayName: "Install deployment dependencies"
+
+  - script: python scripts/deploy_fabric_workspace.py
+    displayName: "${{ parameters.solution }} -> ${{ parameters.environment }}"
+    env:
+      SOLUTION_KEY: ${{ parameters.solution }}
+      # Explicitly scoped to the solution folder. The deployment script rejects
+      # a value that resolves to the repository root.
+      REPOSITORY_DIRECTORY: $(Build.SourcesDirectory)/${{ parameters.sourcePath }}
+      TENANT_ID: $(TENANT_ID)
+      CLIENT_ID: $(CLIENT_ID)
+      CLIENT_SECRET: $(CLIENT_SECRET)
+      # Expands at template compile time to e.g. $(VED_UAT_WORKSPACE_ID), which
+      # is then resolved from the stage's variable group at run time. The GUID
+      # itself never appears in this repository.
+      TARGET_WORKSPACE_ID: ${{ format('$({0}_{1}_WORKSPACE_ID)', upper(parameters.solution), upper(parameters.environment)) }}
+      TARGET_ENVIRONMENT_NAME: ${{ parameters.environment }}
+      VALIDATE_ONLY: ${{ parameters.validateOnly }}
+      REMOVE_ORPHANS: ${{ parameters.removeOrphans }}
+      EXCLUDE_FOLDERS: $(EXCLUDE_FOLDERS)
+      ITEM_TYPES_IN_SCOPE: $(ITEM_TYPES_IN_SCOPE)
+      LOG_LEVEL: $(LOG_LEVEL)
+      ENABLE_SHORTCUT_PUBLISH: $(ENABLE_SHORTCUT_PUBLISH)

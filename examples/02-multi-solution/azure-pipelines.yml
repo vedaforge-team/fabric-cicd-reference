@@ -1,0 +1,159 @@
+# One Azure DevOps pipeline for every Microsoft Fabric solution in this
+# repository.
+#
+# Promotion model (unchanged from the single-solution version):
+#   develop      validate only, no workspace changes
+#   pull request validate only, no workspace changes
+#   release      deploy to UAT
+#   main         deploy to PROD
+#
+# On top of that, every stage is gated by change detection, so a commit that
+# only touches fabric-workspaces/Ved leaves FIN and HR untouched.
+#
+# Solutions are registered in config/solutions.yml. The list below must match
+# it; tests/test_solution_config.py fails if the two drift apart.
+#
+# Required variable groups:
+#   VG-Fabric-Dev   TENANT_ID, CLIENT_ID, CLIENT_SECRET,
+#                   VED_DEV_WORKSPACE_ID,  FIN_DEV_WORKSPACE_ID,  HR_DEV_WORKSPACE_ID
+#   VG-Fabric-UAT   TENANT_ID, CLIENT_ID, CLIENT_SECRET,
+#                   VED_UAT_WORKSPACE_ID,  FIN_UAT_WORKSPACE_ID,  HR_UAT_WORKSPACE_ID
+#   VG-Fabric-Prod  TENANT_ID, CLIENT_ID, CLIENT_SECRET,
+#                   VED_PROD_WORKSPACE_ID, FIN_PROD_WORKSPACE_ID, HR_PROD_WORKSPACE_ID
+
+trigger:
+  branches:
+    include:
+      - develop
+      - release
+      - main
+
+pr:
+  branches:
+    include:
+      - release
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+parameters:
+  - name: solutionsOverride
+    displayName: "Force solutions (comma separated, e.g. ved,hr). Empty = automatic detection."
+    type: string
+    default: ""
+
+variables:
+  PYTHON_VERSION: "3.12"
+  FABRIC_CICD_VERSION: "1.2.0"
+  EXCLUDE_FOLDERS: ""
+  ITEM_TYPES_IN_SCOPE: ""
+  LOG_LEVEL: "INFO"
+  ENABLE_SHORTCUT_PUBLISH: "true"
+  REMOVE_ORPHANS: "true"
+
+stages:
+  - stage: DetectChanges
+    displayName: "Detect changed Fabric solutions"
+    dependsOn: []
+    jobs:
+      - job: Detect
+        displayName: "Change detection"
+        steps:
+          - checkout: self
+            # Full history. Change detection diffs against the parent commit,
+            # and a shallow clone has no parent to diff against. detect_changes.py
+            # fails loudly rather than reporting "nothing changed" if this is
+            # ever removed.
+            fetchDepth: 0
+            clean: true
+
+          - task: UsePythonVersion@0
+            displayName: "Set Python $(PYTHON_VERSION)"
+            inputs:
+              versionSpec: "$(PYTHON_VERSION)"
+              addToPath: true
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install pyyaml
+            displayName: "Install detection dependencies"
+
+          - script: >-
+              python scripts/detect_changes.py
+              --format azdo
+              --solutions "${{ parameters.solutionsOverride }}"
+              --json-out "$(Build.ArtifactStagingDirectory)/change-detection.json"
+            name: detect
+            displayName: "Detect changed solutions"
+
+          - publish: $(Build.ArtifactStagingDirectory)/change-detection.json
+            artifact: change-detection
+            displayName: "Publish change detection result"
+
+  - template: templates/solution-stages.yml
+    parameters:
+      solution: ved
+      sourcePath: fabric-workspaces/Ved
+      displayName: VED
+
+  - template: templates/solution-stages.yml
+    parameters:
+      solution: fin
+      sourcePath: fabric-workspaces/Fin
+      displayName: FIN
+
+  - template: templates/solution-stages.yml
+    parameters:
+      solution: hr
+      sourcePath: fabric-workspaces/HR
+      displayName: HR
+
+  - stage: Summary
+    displayName: "Deployment summary"
+    condition: always()
+    dependsOn:
+      - DetectChanges
+      - Validate_ved
+      - Validate_fin
+      - Validate_hr
+      - Deploy_UAT_ved
+      - Deploy_UAT_fin
+      - Deploy_UAT_hr
+      - Deploy_PROD_ved
+      - Deploy_PROD_fin
+      - Deploy_PROD_hr
+    jobs:
+      - job: Report
+        displayName: "Report what ran"
+        steps:
+          - checkout: none
+          - script: |
+              echo "========================================================"
+              echo "FABRIC DEPLOYMENT SUMMARY"
+              echo "========================================================"
+              echo "Branch            : $(Build.SourceBranch)"
+              echo "Reason            : $(Build.Reason)"
+              echo "Affected solutions: ${AFFECTED:-none}"
+              echo ""
+              printf '%-10s %-12s %-12s %-12s\n' SOLUTION VALIDATE UAT PROD
+              printf '%-10s %-12s %-12s %-12s\n' VED "$V_VED" "$U_VED" "$P_VED"
+              printf '%-10s %-12s %-12s %-12s\n' FIN "$V_FIN" "$U_FIN" "$P_FIN"
+              printf '%-10s %-12s %-12s %-12s\n' HR  "$V_HR"  "$U_HR"  "$P_HR"
+              echo ""
+              if [ -z "$AFFECTED" ]; then
+                echo "No Fabric solution changes detected. Deployment skipped."
+              fi
+              echo "========================================================"
+            displayName: "Deployment summary"
+            env:
+              AFFECTED: $[ stageDependencies.DetectChanges.Detect.outputs['detect.affected'] ]
+              V_VED: $[ dependencies.Validate_ved.result ]
+              V_FIN: $[ dependencies.Validate_fin.result ]
+              V_HR: $[ dependencies.Validate_hr.result ]
+              U_VED: $[ dependencies.Deploy_UAT_ved.result ]
+              U_FIN: $[ dependencies.Deploy_UAT_fin.result ]
+              U_HR: $[ dependencies.Deploy_UAT_hr.result ]
+              P_VED: $[ dependencies.Deploy_PROD_ved.result ]
+              P_FIN: $[ dependencies.Deploy_PROD_fin.result ]
+              P_HR: $[ dependencies.Deploy_PROD_hr.result ]

@@ -1,0 +1,89 @@
+# Fabric solution registry.
+#
+# This file is the single source of truth for which solutions exist, where
+# their artifacts live in this repository, and which Azure DevOps variable
+# holds each target workspace ID.
+#
+# Deliberately absent from this file:
+#   - workspace GUIDs
+#   - tenant ID, client ID, client secret
+#
+# Workspace GUIDs are held in Azure DevOps variable groups and referenced here
+# only by variable name. That keeps the repository tenant-agnostic and safe to
+# publish. See README.md - "Configuration and secrets".
+#
+# To add a solution, see README.md - "Adding another Fabric solution".
+
+version: 1
+
+solutions:
+  - key: ved
+    display_name: VED
+    source_path: fabric-workspaces/Ved
+    workspaces:
+      dev:
+        name: Ved-Development
+        id_variable: VED_DEV_WORKSPACE_ID
+      uat:
+        name: Ved-UAT
+        id_variable: VED_UAT_WORKSPACE_ID
+      prod:
+        name: Ved-Prod
+        id_variable: VED_PROD_WORKSPACE_ID
+
+  - key: fin
+    display_name: FIN
+    source_path: fabric-workspaces/Fin
+    workspaces:
+      dev:
+        name: Fin-Development
+        id_variable: FIN_DEV_WORKSPACE_ID
+      uat:
+        name: Fin-UAT
+        id_variable: FIN_UAT_WORKSPACE_ID
+      prod:
+        name: Fin-Prod
+        id_variable: FIN_PROD_WORKSPACE_ID
+
+  - key: hr
+    display_name: HR
+    source_path: fabric-workspaces/HR
+    workspaces:
+      dev:
+        name: HR-Development
+        id_variable: HR_DEV_WORKSPACE_ID
+      uat:
+        name: HR-UAT
+        id_variable: HR_UAT_WORKSPACE_ID
+      prod:
+        name: HR-Prod
+        id_variable: HR_PROD_WORKSPACE_ID
+
+# Paths that never trigger a deployment.
+ignore_paths:
+  prefixes:
+    - docs/
+    - diagrams/
+    - images/
+  suffixes:
+    - .md
+  exact:
+    - .gitignore
+    - .gitattributes
+    - LICENSE
+
+# Paths that belong to the shared CI/CD framework itself.
+#
+# A change here does NOT mark any solution as changed. Republishing unchanged
+# artifacts to UAT or PROD just to exercise a framework edit would be a real
+# workspace write (including orphan removal) taken for a validation reason.
+# Use the solutionsOverride pipeline parameter when a framework change genuinely
+# needs to be rolled out to specific solutions.
+framework_paths:
+  prefixes:
+    - scripts/
+    - templates/
+    - tests/
+    - config/
+  exact:
+    - azure-pipelines.yml

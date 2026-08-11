@@ -1,0 +1,93 @@
+# The three promotion stages for one solution.
+#
+# Instantiated once per solution from azure-pipelines.yml. Each stage carries
+# two independent conditions:
+#
+#   branch     decides WHERE this solution is allowed to deploy
+#   detection  decides WHETHER this solution changed at all
+#
+# Both must hold. Detection never widens the branch rule, and the branch rule
+# never widens detection. A stage that fails either check is reported as
+# Skipped, which is how the pipeline shows that unrelated solutions were left
+# alone.
+
+parameters:
+  - name: solution
+    type: string
+  - name: sourcePath
+    type: string
+  - name: displayName
+    type: string
+
+stages:
+  - stage: Validate_${{ parameters.solution }}
+    displayName: "Validate ${{ parameters.displayName }} (DEV)"
+    dependsOn: DetectChanges
+    condition: >-
+      and(
+        succeeded(),
+        eq(dependencies.DetectChanges.outputs['Detect.detect.${{ parameters.solution }}'], 'true'),
+        or(
+          eq(variables['Build.Reason'], 'PullRequest'),
+          eq(variables['Build.SourceBranch'], 'refs/heads/develop')
+        )
+      )
+    variables:
+      - group: VG-Fabric-Dev
+    jobs:
+      - job: Validate
+        displayName: "Validate ${{ parameters.displayName }} against DEV"
+        steps:
+          - template: steps-deploy-solution.yml
+            parameters:
+              solution: ${{ parameters.solution }}
+              sourcePath: ${{ parameters.sourcePath }}
+              environment: DEV
+              validateOnly: "true"
+              removeOrphans: "false"
+
+  - stage: Deploy_UAT_${{ parameters.solution }}
+    displayName: "Deploy ${{ parameters.displayName }} to UAT"
+    dependsOn: DetectChanges
+    condition: >-
+      and(
+        succeeded(),
+        eq(dependencies.DetectChanges.outputs['Detect.detect.${{ parameters.solution }}'], 'true'),
+        eq(variables['Build.SourceBranch'], 'refs/heads/release')
+      )
+    variables:
+      - group: VG-Fabric-UAT
+    jobs:
+      - job: DeployUat
+        displayName: "Deploy ${{ parameters.displayName }} to UAT"
+        steps:
+          - template: steps-deploy-solution.yml
+            parameters:
+              solution: ${{ parameters.solution }}
+              sourcePath: ${{ parameters.sourcePath }}
+              environment: UAT
+              validateOnly: "false"
+              removeOrphans: "$(REMOVE_ORPHANS)"
+
+  - stage: Deploy_PROD_${{ parameters.solution }}
+    displayName: "Deploy ${{ parameters.displayName }} to PROD"
+    dependsOn: DetectChanges
+    condition: >-
+      and(
+        succeeded(),
+        eq(dependencies.DetectChanges.outputs['Detect.detect.${{ parameters.solution }}'], 'true'),
+        eq(variables['Build.SourceBranch'], 'refs/heads/main')
+      )
+    variables:
+      - group: VG-Fabric-Prod
+    jobs:
+      - job: DeployProd
+        displayName: "Deploy ${{ parameters.displayName }} to PROD"
+        steps:
+          - template: steps-deploy-solution.yml
+            parameters:
+              solution: ${{ parameters.solution }}
+              sourcePath: ${{ parameters.sourcePath }}
+              environment: PROD
+              validateOnly: "false"
+              removeOrphans: "$(REMOVE_ORPHANS)"

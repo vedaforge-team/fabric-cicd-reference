@@ -103,8 +103,8 @@ Mermaid sources, rendered by GitHub:
 
 | # | Article | Notes |
 | - | ------- | ----- |
-| 01 | Building Enterprise CI/CD for Microsoft Fabric using Azure DevOps | [notes](docs/articles/article-01-notes.md) |
-| 02 | One CI/CD framework for multiple Microsoft Fabric solutions | [notes](docs/articles/article-02-notes.md) |
+| 01 | [Building Enterprise CI/CD for Microsoft Fabric using Azure DevOps](https://www.linkedin.com/pulse/building-enterprise-microsoft-fabric-cicd-practical-guide-mintu-ghosh-f3dbf/) | [notes](docs/articles/article-01-notes.md) |
+| 02 | [One CI/CD framework for multiple Microsoft Fabric solutions](https://www.linkedin.com/pulse/enterprise-microsoft-fabric-cicd-selective-one-azure-devops-ghosh-uxzsf/) | [notes](docs/articles/article-02-notes.md) |
 
 ## Releases
 

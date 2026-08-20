@@ -4,6 +4,10 @@
 
 Building Enterprise CI/CD for Microsoft Fabric using Azure DevOps
 
+## Published
+
+https://www.linkedin.com/pulse/building-enterprise-microsoft-fabric-cicd-practical-guide-mintu-ghosh-f3dbf/
+
 ## Purpose
 
 This article shows how one Fabric solution can move through `develop`, `release`, and `main` with a single deployment script and one Azure DevOps pipeline.

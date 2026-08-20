@@ -4,6 +4,10 @@
 
 One CI/CD Framework for Multiple Microsoft Fabric Solutions
 
+## Published
+
+https://www.linkedin.com/pulse/enterprise-microsoft-fabric-cicd-selective-one-azure-devops-ghosh-uxzsf/
+
 ## Purpose
 
 This article shows how a single-solution Fabric pipeline grows into one that
